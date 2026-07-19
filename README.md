@@ -49,4 +49,17 @@ jobs:
         uses: devexsolutions/greenlight-action@v1
         with:
           api_token: ${{ secrets.GREENLIGHT_API_TOKEN }}
-⚙️ InputsInputDescriptionRequiredDefaultapi_tokenYour Greenlight Integration TokenYesnullapi_urlOverride the default telemetry endpoint (for testing)Nohttps://greenlight.qercus.tech/api/telemetry/report📊 Viewing ResultsOnce the Action completes, the results are immediately broadcasted in real-time to your Greenlight Dashboard. You can review failed checks, view specific App Store guideline violations, and get actionable fixes directly from the UI.🤝 Support & DocumentationFor detailed guides, troubleshooting, and best practices, please visit our Official Documentation.Built with precision for developers by Devex Solutions.
+```
+
+| `api_token` | Your Greenlight Integration Token | **Yes** | `null` |
+| `api_url` | Override the default telemetry endpoint (for testing) | No | `https://greenlight.qercus.tech/api/telemetry/report` |
+
+
+
+📊 Viewing Results
+Once the Action completes, the results are immediately broadcasted in real-time to your Greenlight Dashboard. You can review failed checks, view specific App Store guideline violations, and get actionable fixes directly from the UI.
+
+🤝 Support & Documentation
+For detailed guides, troubleshooting, and best practices, please visit our Official Documentation.
+
+Built with precision for developers by QercusTech.
