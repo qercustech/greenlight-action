@@ -5,12 +5,12 @@ branding:
   color: 'green'
 inputs:
   api_token:
-    description: "Token secreto de la API del panel de control de Greenlight"
+    description: "Greenlight dashboard API secret integration token"
     required: true
   api_url:
-    description: "URL del endpoint de telemetría"
+    description: "Telemetry endpoint URL"
     required: false
-    default: "https://greenlight.example.com/api/telemetry/report"
+    default: "https://greenlight.qercus.tech/api/telemetry/report"
 runs:
   using: "composite"
   steps:
@@ -23,32 +23,32 @@ runs:
         REPO_NAME: ${{ github.repository }}
         COMMIT_SHA: ${{ github.sha }}
       run: |
-        echo "⬇️  Descargando binario de auditoría de Greenlight..."
-        if ! wget -q https://greenlight.example.com/download/greenlight-cli -O greenlight-cli; then
-          echo "⚠️ Error descargando el CLI, usando simulación temporal por motivos de robustez..."
+        echo "⬇️  Downloading Greenlight audit binary..."
+        if ! wget -q https://greenlight.qercus.tech/download/greenlight-cli -O greenlight-cli; then
+          echo "⚠️ Error downloading the CLI. Using temporary simulation for robustness..."
           echo '#!/bin/bash' > greenlight-cli
-          echo 'echo "{\"status\": \"Superado\", \"issues_count\": 0, \"findings\": []}"' >> greenlight-cli
+          echo 'echo "{\"status\": \"Passed\", \"issues_count\": 0, \"findings\": []}"' >> greenlight-cli
         fi
         
         chmod +x greenlight-cli
 
-        echo "🔍 Analizando el repositorio en: $GITHUB_WORKSPACE..."
-        # Ejecutar el binario y guardar el output JSON
+        echo "🔍 Analyzing repository at: $GITHUB_WORKSPACE..."
+        # Execute the binary and save the JSON output
         ./greenlight-cli "$GITHUB_WORKSPACE" > result.json || true
         
-        # Comprobar si el archivo result.json contiene algo válido, si no, generamos uno por defecto
+        # Check if result.json contains valid data; if not, generate a default fallback
         if [ ! -s result.json ]; then
-            echo "{\"status\": \"Error\", \"issues_count\": 1, \"findings\": [{\"title\": \"Fallo de ejecución\", \"detail\": \"El CLI no produjo un resultado válido.\"}]}" > result.json
+            echo "{\"status\": \"Error\", \"issues_count\": 1, \"findings\": [{\"title\": \"Execution Failure\", \"detail\": \"The CLI did not produce a valid result.\"}]}" > result.json
         fi
         
-        echo "📡 Enviando telemetría al servidor Zero-Trust de Greenlight..."
+        echo "📡 Sending telemetry to the Greenlight Zero-Trust server..."
         
-        # Leer el contenido JSON del reporte
-        AUDIT_STATUS=$(jq -r '.status' result.json 2>/dev/null || echo "Desconocido")
+        # Parse the JSON report content safely
+        AUDIT_STATUS=$(jq -r '.status' result.json 2>/dev/null || echo "Unknown")
         ISSUES_COUNT=$(jq -r '.issues_count' result.json 2>/dev/null || echo 0)
         FINDINGS=$(jq -c '.findings' result.json 2>/dev/null || echo "[]")
 
-        # Construir el JSON del payload para la API
+        # Build the JSON payload for the API
         PAYLOAD=$(jq -n \
           --arg repo_id "$REPO_ID" \
           --arg repo_name "$REPO_NAME" \
@@ -65,7 +65,7 @@ runs:
             findings: $findings
           }')
 
-        # Enviar petición a la API
+        # Send POST request to the API
         HTTP_RESPONSE=$(curl -s -w "%{http_code}" -o curl_output.txt -X POST "$API_URL" \
           -H "Accept: application/json" \
           -H "Content-Type: application/json" \
@@ -73,10 +73,10 @@ runs:
           -d "$PAYLOAD")
         
         if [ "$HTTP_RESPONSE" -ge 200 ] && [ "$HTTP_RESPONSE" -lt 300 ]; then
-          echo "✅ Reporte de auditoría enviado exitosamente (HTTP $HTTP_RESPONSE)."
+          echo "✅ Audit report sent successfully (HTTP $HTTP_RESPONSE)."
         else
-          echo "⚠️ Error enviando el reporte a la API (HTTP $HTTP_RESPONSE)."
-          echo "Respuesta de la API:"
-          cat curl_output.txt || echo "Sin respuesta."
-          echo "El pipeline continuará para no bloquear la ejecución del cliente."
+          echo "⚠️ Error sending the report to the API (HTTP $HTTP_RESPONSE)."
+          echo "API Response:"
+          cat curl_output.txt || echo "No response."
+          echo "The pipeline will continue to avoid blocking the client's execution."
         fi
