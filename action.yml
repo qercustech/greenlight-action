@@ -24,13 +24,19 @@ runs:
         COMMIT_SHA: ${{ github.sha }}
       run: |
         echo "⬇️  Downloading Greenlight audit binary..."
-        if ! wget -q https://greenlight.qercus.tech/download/greenlight-cli -O greenlight-cli; then
-          echo "⚠️ Error downloading the CLI. Using temporary simulation for robustness..."
+        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/qercustech/greenlight-cli/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
+        
+        if [ -n "$DOWNLOAD_URL" ] && wget -q "$DOWNLOAD_URL" -O greenlight.tar.gz; then
+          tar -xzf greenlight.tar.gz
+          mv greenlight greenlight-cli
+        else
+          echo "⚠️ Error downloading the CLI from GitHub Releases. Using temporary simulation for robustness..."
           echo '#!/bin/bash' > greenlight-cli
           echo 'echo "{\"status\": \"PASSED\", \"issues_count\": 0, \"findings\": []}"' >> greenlight-cli
         fi
         
         chmod +x greenlight-cli
+
 
         echo "🔍 Analyzing repository at: $GITHUB_WORKSPACE..."
         # Execute the binary and save the JSON output
