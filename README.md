@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Greenlight Zero-Trust Scan
-        uses: devexsolutions/greenlight-action@v1
+        uses: qercustech/greenlight-action@v1
         with:
           api_token: ${{ secrets.GREENLIGHT_API_TOKEN }}
 ```
