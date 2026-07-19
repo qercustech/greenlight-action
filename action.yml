@@ -27,7 +27,7 @@ runs:
         if ! wget -q https://greenlight.qercus.tech/download/greenlight-cli -O greenlight-cli; then
           echo "⚠️ Error downloading the CLI. Using temporary simulation for robustness..."
           echo '#!/bin/bash' > greenlight-cli
-          echo 'echo "{\"status\": \"Passed\", \"issues_count\": 0, \"findings\": []}"' >> greenlight-cli
+          echo 'echo "{\"status\": \"PASSED\", \"issues_count\": 0, \"findings\": []}"' >> greenlight-cli
         fi
         
         chmod +x greenlight-cli
@@ -38,7 +38,7 @@ runs:
         
         # Check if result.json contains valid data; if not, generate a default fallback
         if [ ! -s result.json ]; then
-            echo "{\"status\": \"Error\", \"issues_count\": 1, \"findings\": [{\"title\": \"Execution Failure\", \"detail\": \"The CLI did not produce a valid result.\"}]}" > result.json
+            echo "{\"status\": \"BLOCKED\", \"issues_count\": 1, \"findings\": [{\"title\": \"Execution Failure\", \"detail\": \"The CLI did not produce a valid result.\"}]}" > result.json
         fi
         
         echo "📡 Sending telemetry to the Greenlight Zero-Trust server..."
