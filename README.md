@@ -51,9 +51,13 @@ jobs:
           api_token: ${{ secrets.GREENLIGHT_API_TOKEN }}
 ```
 
-| `api_token` | Your Greenlight Integration Token | **Yes** | `null` |
-| `api_url` | Override the default telemetry endpoint (for testing) | No | `https://greenlight.qercus.tech/api/telemetry/report` |
+⚙️ Inputs
 
+| Input     | Description                                           | Required | Default                                             |
+|-----------|-------------------------------------------------------|----------|-----------------------------------------------------|
+| api_token | Your Greenlight Integration Token                     | Yes      | null                                                |
+| api_url   | Override the default telemetry endpoint (for testing) | No       | https://greenlight.qercus.tech/api/telemetry/report |
+|           |                                                       |          |                                                     |
 
 
 📊 Viewing Results
