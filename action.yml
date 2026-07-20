@@ -37,10 +37,9 @@ runs:
         
         chmod +x greenlight-cli
 
-
         echo "🔍 Analyzing repository at: $GITHUB_WORKSPACE..."
         # Execute the binary and save the JSON output
-        ./greenlight-cli "$GITHUB_WORKSPACE" > result.json || true
+        ./greenlight-cli preflight "$GITHUB_WORKSPACE" --format json > result.json || true
         
         # Check if result.json contains valid data; if not, generate a default fallback
         if [ ! -s result.json ]; then
