@@ -24,7 +24,7 @@ runs:
         COMMIT_SHA: ${{ github.sha }}
       run: |
         echo "⬇️  Downloading Greenlight audit binary..."
-        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/qercustech/greenlight-cli/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
+        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/qercustech/greenlight-cli/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4 || true)
         
         if [ -n "$DOWNLOAD_URL" ] && wget -q "$DOWNLOAD_URL" -O greenlight.tar.gz; then
           tar -xzf greenlight.tar.gz
