@@ -48,10 +48,23 @@ runs:
         
         echo "📡 Sending telemetry to the Greenlight Zero-Trust server..."
         
-        # Parse the JSON report content safely
-        AUDIT_STATUS=$(jq -r '.status' result.json 2>/dev/null || echo "Unknown")
-        ISSUES_COUNT=$(jq -r '.issues_count' result.json 2>/dev/null || echo 0)
-        FINDINGS=$(jq -c '.findings' result.json 2>/dev/null || echo "[]")
+        # Parse the JSON report content from the real CLI engine
+        # The real CLI outputs findings in a summary object (e.g., .summary.critical)
+        CRITICAL_ISSUES=$(jq -r '.summary.critical // 0' result.json 2>/dev/null || echo 0)
+        WARN_ISSUES=$(jq -r '.summary.warn // 0' result.json 2>/dev/null || echo 0)
+        
+        # Calculate total issues for the Laravel API
+        ISSUES_COUNT=$((CRITICAL_ISSUES + WARN_ISSUES))
+        
+        # Map to the strict statuses expected by the Dashboard
+        if [ "$CRITICAL_ISSUES" -gt 0 ]; then
+          AUDIT_STATUS="BLOCKED"
+        else
+          AUDIT_STATUS="PASSED"
+        fi
+        
+        # Extract findings array (safeguarding in case the key differs)
+        FINDINGS=$(jq -c '.findings // []' result.json 2>/dev/null || echo "[]")
 
         # Build the JSON payload for the API
         PAYLOAD=$(jq -n \
