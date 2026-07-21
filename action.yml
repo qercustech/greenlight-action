@@ -98,3 +98,10 @@ runs:
           cat curl_output.txt || echo "No response."
           echo "The pipeline will continue to avoid blocking the client's execution."
         fi
+
+        # Pipeline Enforcement (Gatekeeper Mode)
+        if [ "$AUDIT_STATUS" = "BLOCKED" ]; then
+          echo "❌ SECURITY GATE: Greenlight has detected CRITICAL vulnerabilities."
+          echo "Please check your Qercus Tech Dashboard for the full report."
+          exit 1
+        fi
